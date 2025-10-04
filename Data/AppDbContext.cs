@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<Sucursal> Sucursales => Set<Sucursal>();
     public DbSet<Proveedor> Proveedores => Set<Proveedor>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Promocion> Promociones { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

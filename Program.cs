@@ -104,7 +104,7 @@ app.MapClienteEndpoints();
 app.MapSucursalEndpoints();
 app.MapProveedorEndpoints();
 app.MapUserEndpoints();
-// Puedes agregar: app.MapReportEndpoints(); si tienes lógica de reportes
+app.MapReportEndpoints(); 
 
 // Endpoint raíz
 app.MapGet("/", () => "API ProyectoInventario corriendo en .NET 9");

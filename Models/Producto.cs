@@ -36,4 +36,8 @@ public class Producto
 
     [Range(0, int.MaxValue)]
     public int Stock { get; set; } = 0;
+    public object TipoPrenda { get; internal set; }
+    public object Proveedor { get; internal set; }
+    public object PrecioAdquisicion { get; internal set; }
+    public object PrecioVenta { get; internal set; }
 }

@@ -2,19 +2,14 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { RouterView } from 'vue-router';
-
-// Importa el componente del menú lateral que crearemos
 import Sidebar from './components/layout/Sidebar.vue';
-import NotificationWrapper from './components/shared/NotificationWrapper.vue'; // Importa el wrapper
-
-const route = useRoute();
-
-// Esta función computada revisa si la ruta actual es la de login
-const isLoginPage = computed(() => route.name === 'Login');
+import NotificationWrapper from './components/shared/NotificationWrapper.vue';
 </script>
 
 <template>
-  <div v-if="isLoginPage">
+  <NotificationWrapper />
+  
+  <div v-if="computed(() => useRoute().name === 'Login').value">
     <RouterView />
   </div>
   
@@ -23,6 +18,5 @@ const isLoginPage = computed(() => route.name === 'Login');
     <main class="flex-1 overflow-y-auto">
       <RouterView />
     </main>
-    <NotificationWrapper /> <div v-if="isLoginPage"> ... </div>
   </div>
 </template>

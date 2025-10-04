@@ -12,15 +12,14 @@ public static class ProductoEndpoints
     {
         var group = app.MapGroup("/api/productos").WithTags("Productos");
 
-        // ENDPOINT MODIFICADO para paginación
+        // --- ENDPOINT MODIFICADO para paginación ---
         group.MapGet("/", [Authorize] async (
-            [FromQuery] int pageNumber, 
-            [FromQuery] int pageSize, 
+            [FromQuery] int? pageNumber, 
+            [FromQuery] int? pageSize, 
             ProductoService service) =>
         {
-            // Asigna valores por defecto si no se proveen
-            int page = pageNumber > 0 ? pageNumber : 1;
-            int size = pageSize > 0 ? pageSize : 10;
+            int page = pageNumber.HasValue && pageNumber.Value > 0 ? pageNumber.Value : 1;
+            int size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
             return await service.GetAllAsync(page, size);
         });
 

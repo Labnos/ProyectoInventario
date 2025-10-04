@@ -15,7 +15,7 @@ export function useNotifications() {
 
     setTimeout(() => {
       notifications.value = notifications.value.filter(n => n.id !== id);
-    }, 3000); // La notificación desaparece después de 3 segundos
+    }, 3000);
   };
 
   return {

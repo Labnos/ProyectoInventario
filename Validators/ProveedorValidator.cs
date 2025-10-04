@@ -12,5 +12,7 @@ public class ProveedorValidator : AbstractValidator<Proveedor>
         RuleFor(p => p.Direccion).MaximumLength(200);
         RuleFor(p => p.Correo).EmailAddress().When(p => !string.IsNullOrWhiteSpace(p.Correo)).MaximumLength(100);
         RuleFor(p => p.Nit).MaximumLength(50);
+        RuleFor(p => p.NombreEmpresa).NotEmpty().MaximumLength(100);
+        RuleFor(p => p.NombreContacto).NotEmpty().MaximumLength(100);
     }
 }

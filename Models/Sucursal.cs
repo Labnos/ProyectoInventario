@@ -26,6 +26,12 @@ public class Sucursal
     public string Departamento { get; set; } = string.Empty;
 
     public bool Activa { get; set; } = true;
+    // En Models/Sucursal.cs
+    [MaxLength(100)]
+    public string Encargado { get; set; } = string.Empty;
+
+    [MaxLength(20)]
+    public string Codigo { get; set; } = string.Empty;
 
     // Si decides relacionar productos o ventas con sucursal:
     // public List<Producto> Productos { get; set; } = new();

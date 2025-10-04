@@ -51,7 +51,7 @@ builder.Services.AddScoped<IValidator<Proveedor>, ProveedorValidator>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ReportService>();
-builder.Services.AddScoped<Users>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ClienteService>();
 builder.Services.AddScoped<SucursalService>();
 builder.Services.AddScoped<ProveedorService>();

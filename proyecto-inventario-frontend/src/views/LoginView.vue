@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import api from '../services/api';
 import { useRouter } from 'vue-router';
+import api from '../services/api';
 
 // --- Estado del Componente ---
 const username = ref('');
@@ -41,16 +41,17 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+  <div class="flex items-center justify-center min-h-screen bg-background-light font-sans">
+    <div class="w-full max-w-md p-8 space-y-8 bg-white-card rounded-lg shadow-md border border-gray-200">
       
       <div class="text-center">
-        <div class="w-24 h-24 mx-auto mb-4 bg-gray-200 rounded-full">
-          </div>
-        <h1 class="text-3xl font-bold text-gray-800" style="font-family: 'Roboto Slab', serif;">
+        <div class="w-24 h-24 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+          <span class="text-gray-400 text-sm">Logo</span>
+        </div>
+        <h1 class="text-3xl font-bold text-text-dark font-serif">
           Comerciales Emilias
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-gray-500">
           Sistema de Gestión de Inventario
         </p>
       </div>
@@ -63,7 +64,7 @@ const handleLogin = async () => {
             v-model="username"
             type="text"
             required
-            class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-primary-blue focus:border-primary-blue"
             placeholder="tu-usuario"
           />
         </div>
@@ -75,12 +76,12 @@ const handleLogin = async () => {
             v-model="password"
             type="password"
             required
-            class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-primary-blue focus:border-primary-blue"
             placeholder="••••••••"
           />
         </div>
 
-        <div v-if="errorMessage" class="p-3 text-sm text-center text-red-700 bg-red-100 rounded-md">
+        <div v-if="errorMessage" class="p-3 text-sm text-center text-accent-red bg-red-100 rounded-md border border-red-200">
           {{ errorMessage }}
         </div>
 
@@ -88,7 +89,7 @@ const handleLogin = async () => {
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed"
+            class="w-full py-2 font-semibold text-white bg-primary-blue rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
             <span v-if="isLoading">Ingresando...</span>
             <span v-else>Ingresar al Sistema</span>
@@ -96,7 +97,7 @@ const handleLogin = async () => {
         </div>
         
         <div class="text-sm text-center">
-          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+          <a href="#" class="font-medium text-primary-blue hover:text-blue-500">
             ¿Olvidaste tu contraseña?
           </a>
         </div>
@@ -104,10 +105,3 @@ const handleLogin = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Estilos adicionales con la fuente recomendada */
-body {
-  font-family: 'Roboto', sans-serif;
-}
-</style>

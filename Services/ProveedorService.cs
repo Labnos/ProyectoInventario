@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProyectoInventario.Data;
 using ProyectoInventario.Models;
+using ProyectoInventario.Services; // Asegúrate que PagedResult esté accesible
 
 namespace ProyectoInventario.Services;
 
@@ -13,11 +14,20 @@ public class ProveedorService
         _db = db;
     }
 
-    public async Task<List<Proveedor>> GetAllAsync() =>
-        await _db.Proveedores.ToListAsync();
+    // --- MÉTODO MODIFICADO para paginación ---
+    public async Task<PagedResult<Proveedor>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+    {
+        var totalCount = await _db.Proveedores.CountAsync();
+        var items = await _db.Proveedores
+                             .OrderBy(p => p.NombreEmpresa)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize)
+                             .ToListAsync();
 
-    public async Task<Proveedor?> GetByIdAsync(int id) =>
-        await _db.Proveedores.FindAsync(id);
+        return new PagedResult<Proveedor> { Items = items, TotalCount = totalCount };
+    }
+
+    public async Task<Proveedor?> GetByIdAsync(int id) => await _db.Proveedores.FindAsync(id);
 
     public async Task<Proveedor> CreateAsync(Proveedor proveedor)
     {
@@ -26,27 +36,26 @@ public class ProveedorService
         return proveedor;
     }
 
-    public async Task<bool> UpdateAsync(int id, Proveedor updated)
+    public async Task<bool> UpdateAsync(int id, Proveedor proveedor)
     {
-        var proveedor = await _db.Proveedores.FindAsync(id);
-        if (proveedor is null) return false;
+        var dbProveedor = await _db.Proveedores.FindAsync(id);
+        if (dbProveedor is null) return false;
 
-        proveedor.Nombre = updated.Nombre;
-        proveedor.Telefono = updated.Telefono;
-        proveedor.Direccion = updated.Direccion;
-        proveedor.Correo = updated.Correo;
-        proveedor.Nit = updated.Nit;
-
+        dbProveedor.NombreEmpresa = proveedor.NombreEmpresa;
+        dbProveedor.NombreContacto = proveedor.NombreContacto;
+        dbProveedor.Telefono = proveedor.Telefono;
+        dbProveedor.Direccion = proveedor.Direccion;
+        
         await _db.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var proveedor = await _db.Proveedores.FindAsync(id);
-        if (proveedor is null) return false;
+        var dbProveedor = await _db.Proveedores.FindAsync(id);
+        if (dbProveedor is null) return false;
 
-        _db.Proveedores.Remove(proveedor);
+        _db.Proveedores.Remove(dbProveedor);
         await _db.SaveChangesAsync();
         return true;
     }

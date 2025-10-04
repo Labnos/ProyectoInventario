@@ -6,7 +6,7 @@ import ConfirmationModal from '../components/shared/ConfirmationModal.vue';
 import Pagination from '../components/shared/Pagination.vue';
 import { useNotifications } from '../composables/useNotifications';
 
-// --- Interfaces y Estado ---
+// Interfaces y Estado
 interface Producto { id: number; nombre: string; tipoPrenda: string; proveedor: string; sucursal: string; precioAdquisicion: number; precioVenta: number; stock: number; }
 const productos = ref<Producto[]>([]);
 const isLoading = ref(true);
@@ -14,7 +14,7 @@ const error = ref<string | null>(null);
 const { addNotification } = useNotifications();
 
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(10); // Mostrar 10 productos por página
 const totalProducts = ref(0);
 
 const isProductModalOpen = ref(false);
@@ -22,7 +22,7 @@ const selectedProduct = ref<Producto | null>(null);
 const isConfirmModalOpen = ref(false);
 const productToDelete = ref<Producto | null>(null);
 
-// --- Lógica de Datos ---
+// Lógica de Datos
 const fetchProducts = async () => {
   isLoading.value = true;
   error.value = null;
@@ -47,7 +47,7 @@ const fetchProducts = async () => {
 onMounted(fetchProducts);
 watch(currentPage, fetchProducts);
 
-// --- Lógica de Modales y Acciones con Notificaciones ---
+// Lógica de Modales y Acciones con Notificaciones
 const handleProductSaved = () => {
   isProductModalOpen.value = false;
   addNotification('Producto guardado con éxito.', 'success');
@@ -64,7 +64,6 @@ const handleDeleteProduct = async () => {
   } finally {
     isConfirmModalOpen.value = false;
     productToDelete.value = null;
-    // Si estamos en la última página y borramos el último item, volvemos a la anterior
     if (productos.value.length === 1 && currentPage.value > 1) {
       currentPage.value--;
     } else {

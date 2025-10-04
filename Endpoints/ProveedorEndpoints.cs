@@ -10,46 +10,47 @@ public static class ProveedorEndpoints
 {
     public static void MapProveedorEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/proveedores", [Authorize] async (ProveedorService service) =>
-            await service.GetAllAsync());
+        var group = app.MapGroup("/api/proveedores").WithTags("Proveedores");
 
-        app.MapGet("/api/proveedores/{id}", [Authorize] async (int id, ProveedorService service) =>
+        // --- ENDPOINT MODIFICADO para paginación ---
+        group.MapGet("/", [Authorize] async (
+            [FromQuery] int? pageNumber, 
+            [FromQuery] int? pageSize, 
+            ProveedorService service) =>
+        {
+            int page = pageNumber.HasValue && pageNumber.Value > 0 ? pageNumber.Value : 1;
+            int size = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
+            return await service.GetAllAsync(page, size);
+        });
+
+        group.MapGet("/{id}", [Authorize] async (int id, ProveedorService service) =>
         {
             var proveedor = await service.GetByIdAsync(id);
             return proveedor is not null ? Results.Ok(proveedor) : Results.NotFound();
         });
 
-        app.MapPost("/api/proveedores", [Authorize] async (
-            [FromBody] Proveedor proveedor,
-            IValidator<Proveedor> validator,
-            ProveedorService service) =>
+        group.MapPost("/", [Authorize] async (Proveedor proveedor, ProveedorService service, IValidator<Proveedor> validator) =>
         {
-            var result = await validator.ValidateAsync(proveedor);
-            if (!result.IsValid) return Results.BadRequest(result.Errors);
-
-            var creado = await service.CreateAsync(proveedor);
-            return Results.Created($"/api/proveedores/{creado.Id}", creado);
+            var validationResult = await validator.ValidateAsync(proveedor);
+            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
+            
+            var created = await service.CreateAsync(proveedor);
+            return Results.Created($"/api/proveedores/{created.Id}", created);
         });
 
-        app.MapPut("/api/proveedores/{id}", [Authorize] async (
-            int id,
-            [FromBody] Proveedor proveedor,
-            IValidator<Proveedor> validator,
-            ProveedorService service) =>
+        group.MapPut("/{id}", [Authorize] async (int id, Proveedor proveedor, ProveedorService service, IValidator<Proveedor> validator) =>
         {
-            var result = await validator.ValidateAsync(proveedor);
-            if (!result.IsValid) return Results.BadRequest(result.Errors);
-
-            var actualizado = await service.UpdateAsync(id, proveedor);
-            return actualizado ? Results.Ok(proveedor) : Results.NotFound();
+            var validationResult = await validator.ValidateAsync(proveedor);
+            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
+            
+            var updated = await service.UpdateAsync(id, proveedor);
+            return updated ? Results.Ok(proveedor) : Results.NotFound();
         });
 
-        app.MapDelete("/api/proveedores/{id}", [Authorize(Policy = "AdminOnly")] async (
-            int id,
-            ProveedorService service) =>
+        group.MapDelete("/{id}", [Authorize] async (int id, ProveedorService service) =>
         {
-            var eliminado = await service.DeleteAsync(id);
-            return eliminado ? Results.NoContent() : Results.NotFound();
+            var deleted = await service.DeleteAsync(id);
+            return deleted ? Results.NoContent() : Results.NotFound();
         });
     }
 }

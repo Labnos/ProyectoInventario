@@ -7,7 +7,7 @@ namespace ProyectoInventario.Services;
 // Clase auxiliar para los resultados paginados
 public class PagedResult<T>
 {
-    public List<T> Items { get; set; }
+    public List<T> Items { get; set; } = new List<T>();
     public int TotalCount { get; set; }
 }
 
@@ -20,11 +20,12 @@ public class ProductoService
         _db = db;
     }
 
-    // MÉTODO MODIFICADO para paginación
+    // --- MÉTODO MODIFICADO para paginación ---
     public async Task<PagedResult<Producto>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
     {
         var totalCount = await _db.Productos.CountAsync();
         var items = await _db.Productos
+                             .OrderBy(p => p.Nombre) // Es buena práctica ordenar los resultados
                              .Skip((pageNumber - 1) * pageSize)
                              .Take(pageSize)
                              .ToListAsync();
@@ -32,6 +33,7 @@ public class ProductoService
         return new PagedResult<Producto> { Items = items, TotalCount = totalCount };
     }
 
+    // --- MÉTODO CORREGIDO ---
     public async Task<Producto?> GetByIdAsync(int id)
     {
         return await _db.Productos.FindAsync(id);
@@ -51,9 +53,11 @@ public class ProductoService
 
         dbProducto.Nombre = producto.Nombre;
         dbProducto.TipoPrenda = producto.TipoPrenda;
-        // ... (resto de las propiedades)
-        dbProducto.Stock = producto.Stock;
+        dbProducto.Proveedor = producto.Proveedor;
+        dbProducto.Sucursal = producto.Sucursal;
+        dbProducto.PrecioAdquisicion = producto.PrecioAdquisicion;
         dbProducto.PrecioVenta = producto.PrecioVenta;
+        dbProducto.Stock = producto.Stock;
         
         await _db.SaveChangesAsync();
         return true;

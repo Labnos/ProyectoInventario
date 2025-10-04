@@ -19,12 +19,14 @@ const goToPage = (page: number) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center space-x-2 mt-4">
-    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1 border rounded-md disabled:opacity-50">
+  <div class="flex items-center justify-end space-x-4 text-sm mt-6">
+    <span class="text-gray-600">
+      Mostrando {{ Math.min((currentPage - 1) * pageSize + 1, totalItems) }} - {{ Math.min(currentPage * pageSize, totalItems) }} de {{ totalItems }}
+    </span>
+    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-3 py-1 border rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors">
       Anterior
     </button>
-    <span class="text-sm">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-3 py-1 border rounded-md disabled:opacity-50">
+    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-3 py-1 border rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors">
       Siguiente
     </button>
   </div>

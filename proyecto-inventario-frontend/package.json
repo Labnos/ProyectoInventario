@@ -15,9 +15,11 @@
     "@vueuse/core": "^13.9.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.12.2",
+    "chart.js": "^4.5.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "vue": "^3.5.18",
+    "vue-chartjs": "^5.3.2",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

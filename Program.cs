@@ -44,8 +44,9 @@ builder.Services.AddScoped<IValidator<Envio>, EnvioValidator>();
 builder.Services.AddScoped<IValidator<Venta>, VentaValidator>();
 builder.Services.AddScoped<IValidator<VentaDetalle>, VentaDetalleValidator>();
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
-builder.Services.AddScoped<IValidator<Sucursal>, SucursalValidator>();
+// builder.Services.AddScoped<IValidator<Sucursal>, SucursalValidator>();
 builder.Services.AddScoped<IValidator<Proveedor>, ProveedorValidator>();
+builder.Services.AddScoped<PromocionService>();
 
 // Servicios personalizados
 builder.Services.AddScoped<AuthService>();
@@ -105,6 +106,7 @@ app.MapSucursalEndpoints();
 app.MapProveedorEndpoints();
 app.MapUserEndpoints();
 app.MapReportEndpoints(); 
+app.MapPromocionEndpoints();
 
 // Endpoint raíz
 app.MapGet("/", () => "API ProyectoInventario corriendo en .NET 9");

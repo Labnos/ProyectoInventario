@@ -11,11 +11,11 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this WebApplication app)
     {
         //  Obtener todos los usuarios
-        app.MapGet("/api/usuarios", [Authorize(Policy = "AdminOnly")] async (Users service) =>
+        app.MapGet("/api/usuarios", [Authorize(Policy = "AdminOnly")] async (UserService service) =>
             await service.GetAllAsync());
 
         //  Obtener usuario por ID
-        app.MapGet("/api/usuarios/{id}", [Authorize(Policy = "AdminOnly")] async (int id, Users service) =>
+        app.MapGet("/api/usuarios/{id}", [Authorize(Policy = "AdminOnly")] async (int id, UserService service) =>
         {
             var user = await service.GetByIdAsync(id);
             return user is not null ? Results.Ok(user) : Results.NotFound();
@@ -25,7 +25,7 @@ public static class UserEndpoints
         app.MapPost("/api/usuarios", [Authorize(Policy = "AdminOnly")] async (
             [FromBody] User user,
             IValidator<User> validator,
-            Users service) =>
+            UserService service) =>
         {
             var result = await validator.ValidateAsync(user);
             if (!result.IsValid) return Results.BadRequest(result.Errors);
@@ -39,7 +39,7 @@ public static class UserEndpoints
             int id,
             [FromBody] User user,
             IValidator<User> validator,
-            Users service) =>
+            UserService service) =>
         {
             var result = await validator.ValidateAsync(user);
             if (!result.IsValid) return Results.BadRequest(result.Errors);
@@ -52,7 +52,7 @@ public static class UserEndpoints
         app.MapPut("/api/usuarios/{id}/password", [Authorize] async (
             int id,
             [FromBody] string nuevaPassword,
-            Users service) =>
+            UserService service) =>
         {
             var actualizado = await service.UpdatePasswordAsync(id, nuevaPassword);
             return actualizado ? Results.Ok("Contraseña actualizada") : Results.NotFound();
@@ -61,7 +61,7 @@ public static class UserEndpoints
         //  Desactivar usuario
         app.MapDelete("/api/usuarios/{id}", [Authorize(Policy = "AdminOnly")] async (
             int id,
-            Users service) =>
+            UserService service) =>
         {
             var eliminado = await service.DeactivateAsync(id);
             return eliminado ? Results.NoContent() : Results.NotFound();

@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Iniciar Backend (.NET)",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "run",
+        "--project",
+        // Asegúrate de que esta ruta a tu archivo .csproj sea correcta
+        "${workspaceFolder}/ProyectoInventario.csproj" 
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "servers",
+        "panel": "new" // Abre una nueva terminal para el backend
+      },
+      "group": "build"
+    },
+    {
+      "label": "Iniciar Frontend (Vue)",
+      "command": "npm",
+      "type": "shell",
+      "args": ["run", "dev"],
+      "options": {
+        // Le indica a npm que trabaje dentro de la carpeta del frontend
+        "cwd": "${workspaceFolder}/proyecto-inventario-frontend"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "group": "servers",
+        "panel": "new" // Abre otra nueva terminal para el frontend
+      },
+      "group": "build"
+    },
+    {
+      "label": "▶️ Iniciar Todo (Backend + Frontend)",
+      "dependsOn": [
+        "Iniciar Backend (.NET)",
+        "Iniciar Frontend (Vue)"
+      ],
+      "dependsOrder": "parallel", // Ejecuta ambas tareas al mismo tiempo
+      "group": {
+        "kind": "build",
+        "isDefault": true // Hace que esta sea la tarea de compilación por defecto (Ctrl+Shift+B)
+      },
+      "problemMatcher": []
+    }
+  ]
+}

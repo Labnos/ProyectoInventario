@@ -111,4 +111,4 @@ app.MapReportEndpoints();
 app.MapGet("/", () => "API del Proyecto de Inventario está en ejecución.");
 
 // --- EJECUTAR LA APLICACIÓN ---
-xapp.Run();
+app.Run();

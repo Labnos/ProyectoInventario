@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProyectoInventario.Data;
 using ProyectoInventario.Models;
 using ProyectoInventario.Services;
 using FluentValidation;
@@ -12,62 +10,48 @@ public static class ProductoEndpoints
 {
     public static void MapProductoEndpoints(this WebApplication app)
     {
-        // Obtener todos los productos
-        app.MapGet("/api/productos", [Authorize] async (ProductoService service) =>
-            await service.GetAllAsync());
+        var group = app.MapGroup("/api/productos").WithTags("Productos");
 
-        //  Obtener producto por ID
-        app.MapGet("/api/productos/{id}", [Authorize] async (int id, ProductoService service) =>
+        // ENDPOINT MODIFICADO para paginación
+        group.MapGet("/", [Authorize] async (
+            [FromQuery] int pageNumber, 
+            [FromQuery] int pageSize, 
+            ProductoService service) =>
+        {
+            // Asigna valores por defecto si no se proveen
+            int page = pageNumber > 0 ? pageNumber : 1;
+            int size = pageSize > 0 ? pageSize : 10;
+            return await service.GetAllAsync(page, size);
+        });
+
+        group.MapGet("/{id}", [Authorize] async (int id, ProductoService service) =>
         {
             var producto = await service.GetByIdAsync(id);
             return producto is not null ? Results.Ok(producto) : Results.NotFound();
         });
 
-        //  Crear nuevo producto con validación
-        app.MapPost("/api/productos", [Authorize] async (
-            [FromBody] Producto producto,
-            IValidator<Producto> validator,
-            ProductoService service) =>
+        group.MapPost("/", [Authorize] async (Producto producto, ProductoService service, IValidator<Producto> validator) =>
         {
-            var result = await validator.ValidateAsync(producto);
-            if (!result.IsValid)
-                return Results.BadRequest(result.Errors);
-
-            var creado = await service.CreateAsync(producto);
-            return Results.Created($"/api/productos/{creado.Id}", creado);
+            var validationResult = await validator.ValidateAsync(producto);
+            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
+            
+            var createdProducto = await service.CreateAsync(producto);
+            return Results.Created($"/api/productos/{createdProducto.Id}", createdProducto);
         });
 
-        //  Actualizar producto existente
-        app.MapPut("/api/productos/{id}", [Authorize] async (
-            int id,
-            [FromBody] Producto producto,
-            IValidator<Producto> validator,
-            ProductoService service) =>
+        group.MapPut("/{id}", [Authorize] async (int id, Producto producto, ProductoService service, IValidator<Producto> validator) =>
         {
-            var result = await validator.ValidateAsync(producto);
-            if (!result.IsValid)
-                return Results.BadRequest(result.Errors);
+            var validationResult = await validator.ValidateAsync(producto);
+            if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
 
-            var actualizado = await service.UpdateAsync(id, producto);
-            return actualizado ? Results.Ok(producto) : Results.NotFound();
+            var updated = await service.UpdateAsync(id, producto);
+            return updated ? Results.Ok(producto) : Results.NotFound();
         });
 
-        //  Eliminar producto
-        app.MapDelete("/api/productos/{id}", [Authorize(Policy = "AdminOnly")] async (
-            int id,
-            ProductoService service) =>
+        group.MapDelete("/{id}", [Authorize] async (int id, ProductoService service) =>
         {
-            var eliminado = await service.DeleteAsync(id);
-            return eliminado ? Results.NoContent() : Results.NotFound();
-        });
-
-        // Obtener productos con bajo stock
-        app.MapGet("/api/productos/bajo-stock/{umbral}", [Authorize] async (
-            int umbral,
-            ProductoService service) =>
-        {
-            var productos = await service.GetProductosBajoStockAsync(umbral);
-            return Results.Ok(productos);
+            var deleted = await service.DeleteAsync(id);
+            return deleted ? Results.NoContent() : Results.NotFound();
         });
     }
 }

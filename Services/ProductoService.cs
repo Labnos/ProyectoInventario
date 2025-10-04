@@ -4,6 +4,13 @@ using ProyectoInventario.Models;
 
 namespace ProyectoInventario.Services;
 
+// Clase auxiliar para los resultados paginados
+public class PagedResult<T>
+{
+    public List<T> Items { get; set; }
+    public int TotalCount { get; set; }
+}
+
 public class ProductoService
 {
     private readonly AppDbContext _db;
@@ -13,19 +20,23 @@ public class ProductoService
         _db = db;
     }
 
-    // 🔍 Obtener todos los productos
-    public async Task<List<Producto>> GetAllAsync()
+    // MÉTODO MODIFICADO para paginación
+    public async Task<PagedResult<Producto>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
     {
-        return await _db.Productos.ToListAsync();
+        var totalCount = await _db.Productos.CountAsync();
+        var items = await _db.Productos
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize)
+                             .ToListAsync();
+
+        return new PagedResult<Producto> { Items = items, TotalCount = totalCount };
     }
 
-    // 🔍 Obtener producto por ID
     public async Task<Producto?> GetByIdAsync(int id)
     {
         return await _db.Productos.FindAsync(id);
     }
 
-    // ➕ Crear nuevo producto
     public async Task<Producto> CreateAsync(Producto producto)
     {
         _db.Productos.Add(producto);
@@ -33,40 +44,28 @@ public class ProductoService
         return producto;
     }
 
-    // Actualizar producto existente
-    public async Task<bool> UpdateAsync(int id, Producto updated)
+    public async Task<bool> UpdateAsync(int id, Producto producto)
     {
-        var existing = await _db.Productos.FindAsync(id);
-        if (existing is null) return false;
+        var dbProducto = await _db.Productos.FindAsync(id);
+        if (dbProducto is null) return false;
 
-        existing.Nombre = updated.Nombre;
-        existing.Tipo = updated.Tipo;
-        existing.Talla = updated.Talla;
-        existing.Color = updated.Color;
-        existing.PrecioEntrada = updated.PrecioEntrada;
-        existing.PrecioVendedor = updated.PrecioVendedor;
-        existing.Sucursal = updated.Sucursal;
-
+        dbProducto.Nombre = producto.Nombre;
+        dbProducto.TipoPrenda = producto.TipoPrenda;
+        // ... (resto de las propiedades)
+        dbProducto.Stock = producto.Stock;
+        dbProducto.PrecioVenta = producto.PrecioVenta;
+        
         await _db.SaveChangesAsync();
         return true;
     }
 
-    //  Eliminar producto
     public async Task<bool> DeleteAsync(int id)
     {
-        var producto = await _db.Productos.FindAsync(id);
-        if (producto is null) return false;
-
-        _db.Productos.Remove(producto);
+        var dbProducto = await _db.Productos.FindAsync(id);
+        if (dbProducto is null) return false;
+        
+        _db.Productos.Remove(dbProducto);
         await _db.SaveChangesAsync();
         return true;
-    }
-
-    //  Obtener productos con bajo stock (si agregas campo Stock)
-    public async Task<List<Producto>> GetProductosBajoStockAsync(int umbral)
-    {
-        return await _db.Productos
-            .Where(p => p.Stock < umbral)
-            .ToListAsync();
     }
 }

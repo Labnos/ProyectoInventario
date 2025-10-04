@@ -1,0 +1,31 @@
+# Archivos y carpetas específicos de Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de compilación
+[Bb]in/
+[Oo]bj/
+
+# Archivos de publicación
+[Rr]elease/
+[Dd]ebug/
+
+# Archivos de dependencias de Node.js (para tu frontend)
+/proyecto-inventario-frontend/node_modules
+
+# Archivos de caché de npm
+/proyecto-inventario-frontend/npm-debug.log*
+/proyecto-inventario-frontend/yarn-debug.log*
+/proyecto-inventario-frontend/yarn-error.log*
+
+# Archivos de entorno (nunca subir secretos)
+.env
+.env.local
+.env.*.local
+
+# Otros
+*.dbmdl
+*.zip

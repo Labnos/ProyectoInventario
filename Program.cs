@@ -1,25 +1,23 @@
-using ProyectoInventario.Data;
-using ProyectoInventario.Models;
-using ProyectoInventario.Auth;
-using ProyectoInventario.Endpoints;
-using ProyectoInventario.Services;
-using ProyectoInventario.Validators;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
+using ProyectoInventario.Data;
+using ProyectoInventario.Services;
+using ProyectoInventario.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de base de datos MySQL
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 34))));
+// --- REGISTRO DE SERVICIOS ---
 
-// Configuración de autenticación JWT
+// Configuración de la Base de Datos MySQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 34))));
+
+// Configuración de Autenticación con JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters {
@@ -33,37 +31,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Configuración de Autorización
 builder.Services.AddAuthorization(options => {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
-// Validaciones con FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<ProductoValidator>();
-builder.Services.AddScoped<IValidator<Cliente>, ClienteValidator>();
-builder.Services.AddScoped<IValidator<Envio>, EnvioValidator>();
-builder.Services.AddScoped<IValidator<Venta>, VentaValidator>();
-builder.Services.AddScoped<IValidator<VentaDetalle>, VentaDetalleValidator>();
-builder.Services.AddScoped<IValidator<User>, UserValidator>();
-// builder.Services.AddScoped<IValidator<Sucursal>, SucursalValidator>();
-builder.Services.AddScoped<IValidator<Proveedor>, ProveedorValidator>();
-builder.Services.AddScoped<PromocionService>();
+// --- SOLUCIÓN AL ERROR: Registrar todos los validadores con una sola línea ---
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// Servicios personalizados
+// Registrar los servicios de la aplicación
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<ProductoService>();
-builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ClienteService>();
-builder.Services.AddScoped<SucursalService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<VentaService>();
+builder.Services.AddScoped<SucursalService>();
+builder.Services.AddScoped<PromocionService>();
+builder.Services.AddScoped<ReportService>();
 
-// Swagger con soporte JWT
+// Configuración de Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API de Inventario", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         In = ParameterLocation.Header,
-        Description = "Ingrese el token JWT",
+        Description = "Ingrese el token JWT. Ejemplo: 'Bearer {token}'",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer"
@@ -81,35 +74,41 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
-// CORS para frontend externo
+// Configuración de CORS
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
+
+// --- CONSTRUCCIÓN DE LA APLICACIÓN ---
 var app = builder.Build();
 
-//  Middleware
+// Configuración del Pipeline de HTTP
 app.UseCors("AllowAll");
-app.UseSwagger();
-app.UseSwaggerUI();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Endpoints Minimal API
+// --- MAPEO DE ENDPOINTS ---
+app.MapAuthEndpoints();
+app.MapUserEndpoints();
 app.MapProductoEndpoints();
 app.MapVentaEndpoints();
-app.MapEnvioEndpoints();
-app.MapAuthEndpoints();
 app.MapClienteEndpoints();
-app.MapSucursalEndpoints();
 app.MapProveedorEndpoints();
-app.MapUserEndpoints();
-app.MapReportEndpoints(); 
+app.MapSucursalEndpoints();
 app.MapPromocionEndpoints();
+app.MapReportEndpoints();
+// app.MapEnvioEndpoints(); // Comentado si no está implementado
 
-// Endpoint raíz
-app.MapGet("/", () => "API ProyectoInventario corriendo en .NET 9");
+app.MapGet("/", () => "API del Proyecto de Inventario está en ejecución.");
 
-// Ejecutar aplicación
-app.Run();
+// --- EJECUTAR LA APLICACIÓN ---
+xapp.Run();

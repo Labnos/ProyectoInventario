@@ -5,7 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ProyectoInventario.Auth;
+// Corregido para coincidir con la ubicación del archivo
+namespace ProyectoInventario.Services; 
 
 public class AuthService
 {
@@ -16,24 +17,21 @@ public class AuthService
         _config = config;
     }
 
-    public string GenerateToken(User user)
+    // He renombrado el método para que sea más descriptivo, como en tu Program.cs
+    public string GenerateJwtToken(User user) 
     {
-        //  Claims del usuario
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, user.Username),
             new Claim(ClaimTypes.Role, user.Role)
         };
 
-        //  Clave secreta
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        //  Tiempo de expiración
         var expireMinutes = int.Parse(_config["Jwt:ExpireMinutes"]!);
         var expiration = DateTime.UtcNow.AddMinutes(expireMinutes);
 
-        //  Crear el token
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
@@ -42,7 +40,6 @@ public class AuthService
             signingCredentials: creds
         );
 
-        //  Devolver token como string
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

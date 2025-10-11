@@ -1,68 +1,81 @@
 using Microsoft.EntityFrameworkCore;
 using ProyectoInventario.Data;
 using ProyectoInventario.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ProyectoInventario.Services;
-
-public class ReportService
+namespace ProyectoInventario.Services
 {
-    private readonly AppDbContext _db;
-
-    public ReportService(AppDbContext db)
+    public class ReportService
     {
-        _db = db;
-    }
+        private readonly AppDbContext _db;
 
-    //  Productos con bajo stock
-    public async Task<List<Producto>> GetProductosBajoStockAsync(int umbral)
-    {
-        return await _db.Productos
-            .Where(p => p.Stock < umbral)
-            .ToListAsync();
-    }
+        public ReportService(AppDbContext db)
+        {
+            _db = db;
+        }
 
-    //  Total de ventas por fecha
-    public async Task<decimal> GetTotalVentasPorFechaAsync(DateTime fecha)
-    {
-        return await _db.Ventas
-            .Where(v => v.Fecha.Date == fecha.Date)
-            .SumAsync(v => v.Total);
-    }
+        public async Task<List<Venta>> GetVentasEntreFechasAsync(DateTime inicio, DateTime fin)
+        {
+            return await _db.Ventas
+                .Where(v => v.Fecha >= inicio && v.Fecha <= fin.AddDays(1)) // Se agrega AddDays(1) para incluir todo el día de la fecha fin
+                .Include(v => v.Cliente)
+                .Include(v => v.Detalles)
+                .ThenInclude(d => d.Producto)
+                .ToListAsync();
+        }
 
-    //  Ingresos por sucursal
-    public async Task<Dictionary<string, decimal>> GetIngresosPorSucursalAsync()
-    {
-        return await _db.Ventas
-            .GroupBy(v => v.Sucursal)
-            .Select(g => new { Sucursal = g.Key, Total = g.Sum(v => v.Total) })
-            .ToDictionaryAsync(x => x.Sucursal, x => x.Total);
-    }
+        public async Task<List<(string NombreProducto, int TotalVendidos)>> GetProductosMasVendidosAsync(int top = 5)
+        {
+            // 1. Ejecuta la consulta y trae los resultados a la memoria como una lista de objetos anónimos.
+            var results = await _db.VentaDetalles
+                .GroupBy(vd => vd.Producto.Nombre)
+                .Select(g => new {
+                    NombreProducto = g.Key,
+                    TotalVendidos = g.Sum(vd => vd.Cantidad)
+                })
+                .OrderByDescending(x => x.TotalVendidos)
+                .Take(top)
+                .ToListAsync();
 
-    //  Productos más vendidos
-    public async Task<List<(string NombreProducto, int TotalVendidos)>> GetProductosMasVendidosAsync(int top = 5)
-    {
-        return await _db.VentaDetalles
-            .GroupBy(vd => vd.ProductoId)
-            .Select(g => new {
-                ProductoId = g.Key,
-                TotalVendidos = g.Sum(vd => vd.Cantidad)
-            })
-            .OrderByDescending(x => x.TotalVendidos)
-            .Take(top)
-            .Join(_db.Productos,
-                x => x.ProductoId,
-                p => p.Id,
-                (x, p) => new { p.Nombre, x.TotalVendidos })
-            .Select(x => (x.Nombre, x.TotalVendidos))
-            .ToListAsync();
-    }
+            // 2. Una vez en memoria, convierte la lista de objetos a una lista de tuplas.
+            return results.Select(x => (x.NombreProducto, x.TotalVendidos)).ToList();
+        }
 
-    //  Ventas entre fechas
-    public async Task<List<Venta>> GetVentasEntreFechasAsync(DateTime inicio, DateTime fin)
-    {
-        return await _db.Ventas
-            .Where(v => v.Fecha >= inicio && v.Fecha <= fin)
-            .Include(v => v.Detalles)
-            .ToListAsync();
+        public async Task<List<Producto>> GetProductosBajoStockAsync(int umbral)
+        {
+            return await _db.Productos
+                .Where(p => p.Stock < umbral)
+                .ToListAsync();
+        }
+
+        public async Task<List<object>> GetGananciaPorProductoAsync(DateTime inicio, DateTime fin)
+        {
+            return await _db.VentaDetalles
+                .Where(d => d.Venta.Fecha >= inicio && d.Venta.Fecha <= fin.AddDays(1))
+                .Include(d => d.Producto)
+                .GroupBy(d => d.Producto.Nombre)
+                .Select(g => new {
+                    Producto = g.Key,
+                    CantidadVendida = g.Sum(d => d.Cantidad),
+                    GananciaTotal = g.Sum(d => (d.PrecioUnitario - d.Producto.PrecioEntrada) * d.Cantidad)
+                })
+                .OrderByDescending(x => x.GananciaTotal)
+                .ToListAsync<object>();
+        }
+
+        public async Task<List<Producto>> GetInventarioActualAsync(string? sucursal = null)
+        {
+            var query = _db.Productos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sucursal))
+            {
+                query = query.Where(p => p.Sucursal == sucursal);
+            }
+
+            return await query.OrderBy(p => p.Nombre).ToListAsync();
+        }
     }
 }

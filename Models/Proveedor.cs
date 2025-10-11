@@ -29,6 +29,7 @@ public class Proveedor
     [MaxLength(100)]
     public string Observaciones { get; set; } = string.Empty;
 
+    public string? NombreCompleto { get; set; } = string.Empty;
     // Si decides relacionar productos con proveedores:
     // public List<Producto> Productos { get; set; } = new();
 }

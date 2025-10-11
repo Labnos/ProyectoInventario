@@ -20,7 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Configuración de Autenticación con JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
-        options.TokenValidationParameters = new TokenValidationParameters {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -54,7 +55,8 @@ builder.Services.AddScoped<ReportService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API de Inventario", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
         In = ParameterLocation.Header,
         Description = "Ingrese el token JWT. Ejemplo: 'Bearer {token}'",
         Name = "Authorization",

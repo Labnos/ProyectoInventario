@@ -13,19 +13,25 @@ const { addNotification } = useNotifications();
 const handleLogin = async () => {
   isLoading.value = true;
   try {
-    const response = await api.post('/login', {
-      email: email.value,
+    // CORREGIDO: Se cambió el endpoint y el formato de los datos enviados
+    const response = await api.post('/api/auth/login', {
+      username: email.value, // Se envía como 'username'
       password: password.value,
     });
-    localStorage.setItem('authToken', response.data.token);
+
+    // CORREGIDO: Se guarda el token como 'token' para consistencia
+    localStorage.setItem('token', response.data.token); 
+
     api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     router.push('/dashboard');
+
   } catch (error) {
     addNotification('Credenciales incorrectas. Por favor, inténtalo de nuevo.', 'error');
   } finally {
     isLoading.value = false;
   }
 };
+
 </script>
 
 <template>

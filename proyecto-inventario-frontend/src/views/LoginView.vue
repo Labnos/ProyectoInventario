@@ -13,105 +13,185 @@ const { addNotification } = useNotifications();
 const handleLogin = async () => {
   isLoading.value = true;
   try {
-    // CORREGIDO: Se cambió el endpoint y el formato de los datos enviados
     const response = await api.post('/api/auth/login', {
-      username: email.value, // Se envía como 'username'
+      username: email.value,
       password: password.value,
     });
 
-    // CORREGIDO: Se guarda el token como 'token' para consistencia
-    localStorage.setItem('token', response.data.token); 
-
+    localStorage.setItem('token', response.data.token);
     api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     router.push('/dashboard');
-
   } catch (error) {
     addNotification('Credenciales incorrectas. Por favor, inténtalo de nuevo.', 'error');
   } finally {
     isLoading.value = false;
   }
 };
-
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FDF0E1] to-[#FFE5CC] p-4 font-sans">
-    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border-t-4 border-[#FF8C00] transition-transform hover:scale-[1.01]">
-      <div class="absolute bottom-0 left-0 w-full h-4 bg-[#FF8C00] -z-10"></div>
-      <div class="absolute bottom-0 left-0 w-full h-2 bg-[#F28500] -z-10 translate-y-2"></div>
+  <div class="screen">
+    <div class="login-box">
+      <h2>COMERCIALES EMILIAS</h2>
+      <p class="subtitle">Sistema de Gestión Inventario</p>
 
-      <div class="p-8 pb-12">
-        <h2 class="text-3xl font-extrabold text-center text-gray-800 mb-8 uppercase tracking-wide">Login</h2>
-
-        <form @submit.prevent="handleLogin" class="space-y-6">
-          <!-- Email -->
-          <div>
-            <label for="email" class="sr-only">Email ID</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <font-awesome-icon :icon="['fas', 'envelope']" />
-              </span>
-              <input
-                id="email"
-                v-model="email"
-                type="email"
-                required
-                autocomplete="email"
-                placeholder="Email ID"
-                class="input-field"
-                aria-label="Email ID"
-              />
-            </div>
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label for="password" class="sr-only">Password</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <font-awesome-icon :icon="['fas', 'lock']" />
-              </span>
-              <input
-                id="password"
-                v-model="password"
-                type="password"
-                required
-                autocomplete="current-password"
-                placeholder="Password"
-                class="input-field"
-                aria-label="Password"
-              />
-              <a href="#" class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#FF8C00] hover:text-[#F28500] text-sm font-semibold">
-                Forgot?
-              </a>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <div class="pt-4">
-            <button
-              type="submit"
-              :disabled="isLoading"
-              class="w-full flex justify-center py-3 px-4 rounded-full text-lg font-bold text-white bg-gradient-to-r from-[#FF8C00] to-[#F28500] hover:from-[#F28500] hover:to-[#FF8C00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF8C00] disabled:bg-gray-400 transition-all shadow-lg"
-            >
-              {{ isLoading ? 'Logging in...' : 'Login' }}
-            </button>
-          </div>
-        </form>
-
-        <!-- Footer -->
-        <div class="text-center mt-8 text-gray-600 text-sm">
-          Don't have an account?
-          <a href="#" class="text-[#FF8C00] hover:text-[#F28500] font-semibold">Sign Up</a>
+      <form @submit.prevent="handleLogin">
+        <div class="input-group">
+          <i class="fas fa-envelope icon"></i>
+          <input
+            type="email"
+            v-model="email"
+            placeholder="Correo Electrónico"
+            required
+          />
         </div>
-      </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock icon"></i>
+          <input
+            type="password"
+            v-model="password"
+            placeholder="Contraseña"
+            required
+          />
+          <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button :disabled="isLoading">
+          {{ isLoading ? 'Ingresando...' : 'INGRESAR AL SISTEMA' }}
+        </button>
+      </form>
     </div>
   </div>
 </template>
 
 <style scoped>
-.input-field {
-  @apply w-full pl-10 pr-4 py-3 border-b border-gray-300 bg-transparent text-gray-700 placeholder-gray-400 transition-colors;
-  @apply focus:outline-none focus:border-b-2 focus:border-[#FF8C00];
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+.screen {
+  background: linear-gradient(to bottom right, #FDF0E1, #FFE5CC);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-box {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  border-top: 4px solid #FF8C00;
+  position: relative;
+}
+
+.login-box::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #FF8C00;
+  z-index: -1;
+}
+
+.login-box::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #F28500;
+  transform: translateY(8px);
+  z-index: -1;
+}
+
+.logo {
+  background-color: #FF8C00;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+  color: #1A237E;
+  font-size: 1.75rem;
+  margin-top: 0.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: #616161;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #FF8C00;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.forgot {
+  display: block;
+  text-align: right;
+  margin-top: 0.5rem;
+  color: #FF8C00;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.forgot:hover {
+  color: #F28500;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(to right, #FF8C00, #F28500);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(to right, #F28500, #FF8C00);
+}
+
+button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
 }
 </style>

@@ -9,21 +9,14 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-    <PackageReference Include="FluentValidation" Version="12.0.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PackageReference Include="FluentValidation" Version="12.0.0" /> <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" /> <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" /> <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6"> <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" /> <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" /> <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" /> </ItemGroup>
 
   <Target Name="StartFrontend" BeforeTargets="CoreBuild" Condition="'$(Configuration)' == 'Debug'">
-    <Exec Command="npm install" WorkingDirectory="proyecto-inventario-frontend" />
-    <Exec Command="npm run dev" WorkingDirectory="proyecto-inventario-frontend" />
+    <Exec Command="npm install" WorkingDirectory="proyecto-inventario-frontend" IgnoreExitCode="true" />
+    <Exec Command="npm run dev" WorkingDirectory="proyecto-inventario-frontend" IgnoreExitCode="true" />
   </Target>
 
 </Project>
